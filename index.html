@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Production Line Tracker demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E8EBE6;--pn:#F9FAF7;--ink:#14232C;--mu:#566870;--ln:#C7CEC8;--btn:#1D4457;--go:#1E8A52;--st:#C5352B;--sg:#E9A800;--tv:#0F2A38;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E181E;--pn:#17252D;--ink:#E5ECEA;--mu:#93A4AB;--ln:#2B3C45;--btn:#2F6C88;--go:#3FCB84;--st:#F0685D}}
+:root[data-theme="dark"]{--bg:#0E181E;--pn:#17252D;--ink:#E5ECEA;--mu:#93A4AB;--ln:#2B3C45;--btn:#2F6C88;--go:#3FCB84;--st:#F0685D}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Barlow,"Helvetica Neue",Arial,sans-serif}
+h2,h3,.num,.n2,.clk,.brand{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-weight:600;margin:0}
+h2{font-size:30px;margin-bottom:12px}h3{font-size:22px;margin:22px 0 8px}
+.top{background:var(--tv);color:#F2F5F3;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px}
+.top select{max-width:230px}
+.hz{height:6px;background:repeating-linear-gradient(45deg,var(--sg) 0 12px,#1b1b1b 12px 24px)}
+.brand{font-size:26px}.brand small{font:400 14px Barlow,Arial,sans-serif;opacity:.7;margin-left:8px}
+.who{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:14px}
+nav{display:flex;flex-wrap:wrap;gap:4px;padding:8px 18px 0;border-bottom:1px solid var(--ln)}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--ink);font:600 16px Barlow,Arial,sans-serif;padding:10px 14px;cursor:pointer}
+nav button.on{border-bottom-color:var(--sg)}
+main{max-width:1180px;margin:0 auto;padding:18px}
+.card{background:var(--pn);border:1px solid var(--ln);border-radius:6px;padding:20px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:8px 0}
+label{display:flex;flex-direction:column;font-size:13px;color:var(--mu);gap:3px}
+input,select{padding:9px 10px;border:1px solid var(--ln);border-radius:4px;background:var(--bg);color:var(--ink);font:16px Barlow,Arial,sans-serif}
+.top select{background:#1a3b4c;color:#fff;border-color:#35586a}
+#code{font-size:28px;flex:1;min-width:240px;letter-spacing:.04em}
+.btn,.mini{background:var(--btn);color:#fff;border:0;border-radius:4px;font:600 16px Barlow,Arial,sans-serif;padding:11px 18px;cursor:pointer}
+.mini{padding:5px 10px;font-size:14px}.ghost{background:none;color:var(--ink);border:1px solid var(--ln)}
+:focus-visible{outline:3px solid var(--sg);outline-offset:2px}
+.mu{color:var(--mu)}
+.res{margin:14px 0;padding:14px 16px;border-radius:4px;border-left:8px solid}
+.ok{border-color:var(--go);background:rgba(30,138,82,.13)}.bad{border-color:var(--st);background:rgba(197,53,43,.13)}
+.res>b{font:600 24px "Barlow Condensed",Arial,sans-serif}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:8px}
+.k{display:block;font-size:13px;color:var(--mu)}
+.rl{display:grid;grid-template-columns:90px 130px 1fr 160px;gap:8px;padding:6px 0;border-bottom:1px solid var(--ln);font-size:15px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--ln);white-space:nowrap}
+pre{background:var(--bg);padding:12px;border-radius:4px;overflow-x:auto;font-size:13px}
+.tv{background:var(--tv);color:#F2F5F3;border-radius:6px;padding:24px}
+.tvh{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.lb{font-size:15px;opacity:.75}.tr{text-align:right}.clk{font-size:54px;line-height:1}
+.num{font-size:clamp(80px,15vw,170px);line-height:.9;color:#F2B705;display:inline-block}
+.bump{animation:bump .35s}@keyframes bump{50%{transform:scale(1.06)}}
+@media(prefers-reduced-motion:reduce){.bump{animation:none}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:20px}
+.tc{border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:14px 18px}
+.tc h3{margin:0}.n2{font-size:64px;line-height:1}
+.sub{display:flex;gap:22px;opacity:.85}.sub b{margin-left:8px;color:#3FCB84}
+.po{margin:12px 0}.pt{display:flex;justify-content:space-between;font-size:20px;margin-bottom:4px}
+.pt small{display:block;font-size:13px;opacity:.7}
+.bar{height:14px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:#3FCB84;transition:width .4s}
+.tv .rl{border-color:rgba(255,255,255,.14)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--tv);color:#fff;padding:12px 18px;border-radius:6px;max-width:90vw;border-left:6px solid var(--sg)}
+@media(max-width:700px){.rl{grid-template-columns:70px 1fr}.rl span:nth-child(3){display:none}.clk{font-size:40px}}
+@media print{.noprint{display:none!important}body{background:#fff;color:#000}.card{border:0}}
+</style></head><body>
+<header class="top noprint"><div class="brand">D&amp;U Bicycle<small>Line tracker, demo build</small></div>
+<div class="who"><label style="color:#cfe0e7">Signed in as<select id="who"></select></label><label style="flex-direction:row;align-items:center;gap:6px;color:#cfe0e7"><input type="checkbox" id="sim">Run line simulation</label></div></header>
+<div class="hz noprint"></div>
+<nav id="tabs" class="noprint"></nav>
+<main id="main"></main>
+<div id="toast" hidden></div>
+<script>
+const $=s=>document.querySelector(s),pd=n=>String(n).padStart(2,'0'),
+tm=d=>pd(d.getHours())+':'+pd(d.getMinutes())+':'+pd(d.getSeconds()),
+dk=d=>d.getFullYear()+'-'+pd(d.getMonth()+1)+'-'+pd(d.getDate()),
+TODAY=dk(new Date()),LINES=['Line 1','Line 2'],STN=['Station A','Station B'],
+TN={plan:'POs',rows:'Production plan',scan:'Scan',tv:'TV dashboard',report:'Daily report',odoo:'Odoo sync'},
+HD=['Date','Start time','Finish time','Working hour','Production unit no','P.O. No','Code No','Model name','P.O. Qty','Today production','Total production till now'];
+let POS=[
+{po:'PO-26-0141',buyer:'Nordic Wheels AS',code:'MU-MTB26',model:'MTB 26 Ridge',sku:'MTB26-BLK',qty:40,ean:'8906012340011',ref:'MU-LR-0141-A',desc:'26 inch MTB, 21 speed, matte black'},
+{po:'PO-26-0147',buyer:'Rivera Cycles',code:'MU-KID16',model:'Kids 16 Sprout',sku:'KID16-RED',qty:30,ean:'8906012340028',ref:'MU-LR-0147-A',desc:'Kids 16 inch bicycle, red, training wheels'},
+{po:'PO-26-0152',buyer:'Tasman Bikes Pty',code:'MU-CTY700',model:'City 700C Metro',sku:'CTY700-SLV',qty:25,ean:'8906012340035',ref:'MU-LR-0152-A',desc:'700C city bike, 7 speed, silver'}],
+plan=[],seq=2600,shift={s:'08:00',e:'17:00'},user='admin',tab='plan',last=null,recent=[],odoo={last:null,n:0},sim=null,prev=0,RPT=[];
+const addRow=(p,id,date,x)=>{x=x||{};plan.push({id:id||'BBSL-'+(++seq),po:p.po,sku:p.sku,code:p.code,model:p.model,date:date||TODAY,ean:x.ean||p.ean||'',ref:x.ref||p.ref||'',desc:x.desc||p.desc||'',scan:null,sync:false})};
+POS.forEach(p=>{for(let i=0;i<p.qty;i++)addRow(p)});
+[14,9,6].forEach((n,i)=>plan.filter(r=>r.po===POS[i].po).slice(0,n).forEach((r,k)=>{r.scan={t:new Date(Date.now()-(n-k)*(150+i*25)*1000),line:LINES[(k+i)%2],stn:STN[k%2],by:'Rahim'}}));
+const done=po=>plan.filter(r=>r.po===po&&r.scan).length,
+sc=()=>plan.filter(r=>r.scan&&dk(r.scan.t)===TODAY),
+buyers=()=>[...new Set(POS.map(p=>p.buyer))],
+bu=po=>(POS.find(x=>x.po===po)||{}).buyer||'',
+tabsFor=u=>u==='admin'?['plan','rows','scan','tv','report','odoo']:u==='op'?['scan']:['report'],
+kv=a=>'<div class="kv">'+a.map(x=>`<div><span class="k">${x[0]}</span><b>${x[1]}</b></div>`).join('')+'</div>';
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,4200)}
+function doScan(v,line,stn,by){const code=v.trim().toUpperCase(),r=plan.find(x=>x.id===code);
+if(!r)return{ok:0,code,msg:'This code is not in the production plan.'};
+if(r.scan)return{ok:0,code,msg:`Already scanned at ${r.scan.line}, ${r.scan.stn} at ${tm(r.scan.t)}. A bicycle is counted once, at one station.`};
+r.scan={t:new Date(),line,stn,by};return{ok:1,r,code}}
+function setWho(){$('#who').innerHTML='<option value="admin">Head office admin</option><option value="op">Rahim, operator</option>'+buyers().map(b=>`<option value="b:${b}">Buyer, ${b}</option>`).join('');$('#who').value=user}
+function vPlan(){return `<section class="card"><h2>Purchase orders</h2><div class="tw"><table><tr><th>PO No<th>Buyer<th>Code No<th>Model<th>SKU<th>PO qty<th>Plan rows<th>Scanned<th>Adjust the plan</tr>${POS.map(p=>`<tr><td>${p.po}<td>${p.buyer}<td>${p.code}<td>${p.model}<td>${p.sku}<td>${p.qty}<td>${plan.filter(r=>r.po===p.po).length}<td>${done(p.po)}<td><button class="mini" data-a="add" data-p="${p.po}">Add row</button> <button class="mini ghost" data-a="ded" data-p="${p.po}">Deduct row</button></tr>`).join('')}</table></div>
+<h3>Add a PO</h3><div class="row"><label>PO No<input id="npo"></label><label>Buyer<input id="nby"></label><label>Code No<input id="ncd"></label><label>Model<input id="nmd"></label><label>SKU<input id="nsk"></label><label>PO qty<input id="nq" type="number" min="1" style="width:90px"></label><button class="btn" id="addpo">Add PO</button></div>
+</section>`}
+let RF={po:'',st:'',q:''};
+function vRows(){const rs=plan.filter(r=>(!RF.po||r.po===RF.po)&&(!RF.st||(RF.st==='done')===!!r.scan)&&(!RF.q||(r.id+r.ean+r.ref).toUpperCase().includes(RF.q.toUpperCase())));
+return `<section class="card"><h2>Production plan</h2><p class="mu">Every bicycle planned for production, one row per BBSL No. Operators scan these codes on the floor.</p>
+<h3>Import the plan</h3><p class="mu">Upload the Excel sheet saved as CSV with the columns BBSL No, Production Date, SKU, PO No, Code No, Model, EAN Code, M&amp;U Loading Ref, Description. The last three are optional and the columns can be in any order. Rows already in the plan or with an unknown PO are skipped.</p><div class="row"><input type="file" id="csv" accept=".csv"><button class="btn ghost" id="smp">Load a sample plan file</button></div>
+<h3>Add a single entry</h3><div class="row"><label>BBSL No (empty = next number)<input id="arid" style="width:220px"></label><label>PO No<select id="arpo">${POS.map(p=>`<option>${p.po}</option>`).join('')}</select></label><label>Production date<input type="date" id="ardt" value="${TODAY}"></label><label>EAN Code<input id="arean"></label><label>M&amp;U Loading Ref<input id="arref"></label></div>
+<div class="row"><label style="flex:1;min-width:260px">Description<input id="ardesc"></label><button class="btn" id="addrow">Add entry</button></div><p class="mu">Leave EAN Code, Loading Ref or Description empty to use the PO defaults.</p>
+<h3>${rs.length} of ${plan.length} rows</h3><div class="row"><label>PO<select id="fpo"><option value="">All</option>${POS.map(p=>`<option${RF.po===p.po?' selected':''}>${p.po}</option>`).join('')}</select></label><label>Status<select id="fst"><option value="">All</option><option value="done"${RF.st==='done'?' selected':''}>Scanned</option><option value="pend"${RF.st==='pend'?' selected':''}>Not scanned</option></select></label><label>Search BBSL No, EAN or loading ref<input id="fq" value="${RF.q}" style="width:260px"></label></div>
+<div class="tw"><table><tr><th>BBSL No<th>Production date<th>PO No<th>Code No<th>Model<th>SKU<th>EAN Code<th>M&amp;U Loading Ref<th>Description<th>Status<th></tr>${rs.slice(0,120).map(r=>`<tr><td>${r.id}<td>${r.date}<td>${r.po}<td>${r.code}<td>${r.model}<td>${r.sku}<td>${r.ean}<td>${r.ref}<td>${r.desc}<td>${r.scan?'Scanned '+tm(r.scan.t)+', '+r.scan.line+', '+r.scan.stn:'Not scanned'}<td>${r.scan?'':`<button class="mini ghost" data-a="rm" data-id="${r.id}">Remove</button>`}</tr>`).join('')}</table></div></section>`}
+function vScan(){return `<section class="card"><h2>Scan a finished bicycle</h2><p class="mu">The codes come from the production plan.</p><div class="row"><label>Line<select id="ln">${LINES.map(l=>`<option>${l}</option>`).join('')}</select></label><label>Station<select id="st">${STN.map(l=>`<option>${l}</option>`).join('')}</select></label></div>
+<form id="sf" class="row"><label style="flex:1">BBSL No<input id="code" autocomplete="off" placeholder="Scan or type the code"></label><button class="btn">Accept</button><button type="button" class="btn ghost" id="nx">Scan the next code in the plan</button></form><div id="res"></div><h3>Your scans in this session</h3><div id="recent"></div></section>`}
+function upScan(){const x=last;$('#res').innerHTML=x?(x.ok?`<div class="res ok"><b>Accepted</b>${kv([['BBSL No',x.r.id],['PO No',x.r.po],['Buyer',bu(x.r.po)],['Code No',x.r.code],['Model',x.r.model],['SKU',x.r.sku],['EAN Code',x.r.ean||'-'],['M&U Loading Ref',x.r.ref||'-'],['Description',x.r.desc||'-'],['Recorded',tm(x.r.scan.t)+', '+x.r.scan.line+', '+x.r.scan.stn]])}</div>`:`<div class="res bad"><b>Rejected: ${x.code}</b><div>${x.msg}</div></div>`):'<p class="mu">Waiting for a scan. Try the same code twice, or a wrong one.</p>';
+$('#recent').innerHTML=recent.slice(0,6).map(r=>`<div class="rl"><span>${tm(r.scan.t)}</span><b>${r.id}</b><span>${r.model}</span><span>${r.scan.line}, ${r.scan.stn}</span></div>`).join('')||'<p class="mu">Nothing scanned yet.</p>'}
+function go(v){if(!v.trim())return;const x=doScan(v,$('#ln').value,$('#st').value,'Rahim');last=x;if(x.ok)recent.unshift(x.r);$('#code').value='';$('#code').focus();upScan()}
+function vTv(){const S=sc(),tot=S.length,hr=S.filter(r=>Date.now()-r.scan.t<36e5).length,
+ln=LINES.map(l=>{const a=S.filter(r=>r.scan.line===l);return `<div class="tc"><h3>${l}</h3><div class="n2">${a.length}</div><div class="sub">${STN.map(s=>`<span>${s}<b>${a.filter(r=>r.scan.stn===s).length}</b></span>`).join('')}</div></div>`}).join(''),
+pos=POS.map(p=>{const d=done(p.po);return `<div class="po"><div class="pt"><span>${p.model}<small>${p.po}, ${p.buyer}</small></span><b>${d} / ${p.qty}</b></div><div class="bar"><i style="width:${Math.min(100,Math.round(d/p.qty*100))}%"></i></div></div>`}).join(''),
+rc=S.slice().sort((a,b)=>b.scan.t-a.scan.t).slice(0,6).map(r=>`<div class="rl"><span>${tm(r.scan.t)}</span><b>${r.id}</b><span>${r.model}</span><span>${r.scan.line}, ${r.scan.stn}</span></div>`).join(''),
+bp=tot!==prev?' bump':'';prev=tot;
+return `<div class="tv"><div class="tvh"><div><div class="lb">Built today</div><div class="num${bp}">${tot}</div></div><div class="tr"><div class="clk" id="clk">${tm(new Date())}</div><div class="lb">Shift ${shift.s} to ${shift.e}</div><div class="lb">${hr} bicycles in the last hour</div><button class="mini ghost" id="fs" style="color:#fff;margin-top:8px">Full screen</button></div></div><div class="grid">${ln}</div><h3>Progress against PO quantity</h3>${pos}<h3>Latest scans</h3>${rc||'<p>No scans yet.</p>'}</div>`}
+function vReport(){const b=user.startsWith('b:')?user.slice(2):null,ps=POS.filter(p=>!b||p.buyer===b),
+m=t=>{const a=t.split(':');return +a[0]*60+ +a[1]},wh=Math.max(0,(m(shift.e)-m(shift.s))/60),rows=[];
+ps.forEach(p=>LINES.forEach(l=>{const t=sc().filter(r=>r.po===p.po&&r.scan.line===l).length;if(t)rows.push([TODAY,shift.s,shift.e,wh.toFixed(1),l,p.po,p.code,p.model,p.qty,t,done(p.po)])}));
+RPT=[HD,...rows];const adm=user==='admin';
+return `<section class="card"><h2>Daily production report</h2><p class="mu">${b?'Buyer: '+b+'. Only your POs are shown.':'All buyers.'} Date: ${TODAY}</p>
+${adm?`<div class="row noprint"><label>Shift start<input type="time" id="ss" value="${shift.s}"></label><label>Shift finish<input type="time" id="se" value="${shift.e}"></label></div>`:''}
+<div class="tw"><table><tr>${HD.map(h=>`<th>${h}`).join('')}</tr>${rows.map(r=>'<tr>'+r.map(c=>`<td>${c}`).join('')+'</tr>').join('')||'<tr><td colspan="11">No production yet today.</tr>'}</table></div>
+<div class="row noprint" style="margin-top:14px"><button class="btn" id="dl">Download as CSV</button><button class="btn ghost" id="pr">Print or save as PDF</button></div><p class="mu noprint">Report columns can be added or removed after we agree the final format.</p></section>`}
+const payload=r=>({bbsl_no:r.id,po_no:r.po,code_no:r.code,model:r.model,sku:r.sku,ean_code:r.ean,loading_ref:r.ref,description:r.desc,production_date:r.date,qty:1,line:r.scan.line,station:r.scan.stn,scanned_at:r.scan.t.toISOString()});
+function vOdoo(){const p=plan.filter(r=>r.scan&&!r.sync);return `<section class="card"><h2>Odoo sync</h2>${kv([['Target','Odoo ERP, version to be confirmed'],['Schedule','Every hour, to be agreed'],['Waiting to sync',p.length+' scans'],['Last sync',odoo.last?tm(odoo.last)+', '+odoo.n+' records sent':'Not synced yet']])}<div class="row"><button class="btn" id="sy">Sync now</button></div><h3>Next records to send</h3><pre>${JSON.stringify(p.slice(0,2).map(payload),null,2)}</pre><p class="mu">Demo only. No real Odoo connection is made.</p></section>`}
+function render(){const T=tabsFor(user);if(!T.includes(tab))tab=T[0];
+$('#tabs').innerHTML=T.length>1?T.map(t=>`<button data-t="${t}" class="${t===tab?'on':''}">${TN[t]}</button>`).join(''):'';
+$('#main').innerHTML=({plan:vPlan,rows:vRows,scan:vScan,tv:vTv,report:vReport,odoo:vOdoo})[tab]();
+if(tab==='scan'){upScan();$('#code').focus()}}
+const refresh=()=>{if(tab==='plan'||tab==='rows')return;tab==='scan'?upScan():render()};
+const cells=l=>{const o=[];let c='',q=0;for(const ch of l){if(ch==='"')q=!q;else if(ch===','&&!q){o.push(c.trim());c=''}else c+=ch}o.push(c.trim());return o};
+function csvIn(text){let a=0,d=0,u=0;const L=text.split(/\r?\n/).filter(Boolean),H=cells(L[0]||'').map(s=>s.toLowerCase()),g=(c,...n)=>{for(const k of n){const i=H.indexOf(k);if(i>-1)return c[i]||''}return''};
+L.slice(1).forEach(l=>{const c=cells(l),p=POS.find(x=>x.po===g(c,'po no')),id=g(c,'bbsl no');if(!p){u++;return}if(!id||plan.some(r=>r.id===id)){d++;return}addRow({...p,sku:g(c,'sku')||p.sku,code:g(c,'code no')||p.code,model:g(c,'model')||p.model},id,g(c,'production date','date'),{ean:g(c,'ean code'),ref:g(c,'m&u loading ref'),desc:g(c,'description')});a++});
+render();toast(`${a} rows added to the plan. ${d} already in the plan or without a BBSL No. ${u} skipped because the PO No is not in the system.`)}
+async function save(name,data){const d=window.claude&&await claude.use('downloads');if(!d){toast('Saving files is not available in this view.');return}try{await d.save({filename:name,data})}catch(e){if(e&&e.code!=='declined')toast('Could not save the file.')}}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(t){tab=t.dataset.t;render();return}
+const b=e.target.closest('button');if(!b)return;
+if(b.dataset.a==='rm'){const i=plan.findIndex(r=>r.id===b.dataset.id);if(i>-1&&!plan[i].scan)plan.splice(i,1);render();return}
+if(b.dataset.a){const p=POS.find(x=>x.po===b.dataset.p);if(b.dataset.a==='add')addRow(p);else{const i=plan.map(r=>r.po===p.po&&!r.scan).lastIndexOf(true);if(i>-1)plan.splice(i,1);else toast('Every row of this PO is already scanned.')}render();return}
+const f={nx(){const r=plan.find(x=>!x.scan);r?go(r.id):toast('Every row in the plan is already scanned.')},
+fs(){const n=$('.tv');n.requestFullscreen&&n.requestFullscreen().catch(()=>toast('Full screen is blocked in this view.'))},
+sy(){let n=0;plan.forEach(r=>{if(r.scan&&!r.sync){r.sync=true;n++}});odoo={last:new Date(),n};render()},
+dl(){save('daily-production-report.csv',RPT.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n'))},
+pr(){try{window.print()}catch(x){toast('Printing is not available here. Use Download as CSV.')}},
+smp(){csvIn(['BBSL No,Production Date,SKU,PO No,Code No,Model,EAN Code,M&U Loading Ref,Description',...[1,2,3,4].map(i=>`BBSL-270${i},${TODAY},MTB26-BLK,PO-26-0141,MU-MTB26,MTB 26 Ridge,8906012340011,MU-LR-0141-B,"26 inch MTB, 21 speed, matte black"`),`BBSL-2711,${TODAY},KID16-RED,PO-26-0147,MU-KID16,Kids 16 Sprout,8906012340028,MU-LR-0147-B,"Kids 16 inch bicycle, red"`,`BBSL-2901,${TODAY},XYZ,PO-26-0999,MU-X,Unknown PO,,,`].join('\n'))},
+addrow(){const v=i=>$('#'+i).value.trim(),id=v('arid').toUpperCase(),p=POS.find(x=>x.po===$('#arpo').value);if(id&&plan.some(r=>r.id===id)){toast('This BBSL No is already in the plan.');return}addRow(p,id||undefined,v('ardt')||TODAY,{ean:v('arean'),ref:v('arref'),desc:v('ardesc')});render();toast('Entry added to the plan.')},
+addpo(){const v=i=>$('#'+i).value.trim();if(!v('npo')||!v('nby')||!(+v('nq')>0)){toast('Enter a PO No, a buyer and the PO qty.');return}POS.push({po:v('npo'),buyer:v('nby'),code:v('ncd')||'-',model:v('nmd')||'-',sku:v('nsk')||'-',qty:+v('nq')});setWho();render()}}[b.id];f&&f()});
+document.addEventListener('submit',e=>{e.preventDefault();go($('#code').value)});
+document.addEventListener('change',e=>{const i=e.target.id;if(i==='csv'&&e.target.files[0])e.target.files[0].text().then(csvIn);if(i==='fpo'||i==='fst'||i==='fq'){RF[i.slice(1)]=e.target.value;render()}if(i==='ss'){shift.s=e.target.value||shift.s;render()}if(i==='se'){shift.e=e.target.value||shift.e;render()}});
+$('#who').onchange=e=>{user=e.target.value;tab=tabsFor(user)[0];render()};
+$('#sim').onchange=e=>{clearInterval(sim);if(!e.target.checked)return;sim=setInterval(()=>{const ps=POS.filter(p=>plan.some(r=>r.po===p.po&&!r.scan));if(!ps.length){e.target.checked=false;clearInterval(sim);toast('Every row in the plan is now scanned.');return}const r=plan.find(x=>x.po===ps[Math.random()*ps.length|0].po&&!x.scan);doScan(r.id,LINES[Math.random()*2|0],STN[Math.random()*2|0],'Sim');refresh()},1500)};
+setInterval(()=>{const c=$('#clk');if(c)c.textContent=tm(new Date())},1000);
+setWho();render();
+</script></body></html>
